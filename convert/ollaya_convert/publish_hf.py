@@ -4,7 +4,9 @@
 
 Uploads, to `huggingface.co/<org>/<model>`, what Ollaya derives from the upstream checkpoint:
 the ONNX graphs (weightless: they reference the author's `model.safetensors` by byte offset),
-the decision and calibration configs, and a model card crediting the original authors.
+the decision and calibration configs, and a model card crediting the original authors. A GGUF
+family (run on llama.cpp from the author's own GGUF file) has no graph: its repository holds the
+configs, and its card names the GGUF file each tag pulls.
 Weights are never uploaded; `ollaya pull` fetches them from the author's repository.
 
 The files come from `registry/` (run `package.py` first), so what is published is exactly what
@@ -65,6 +67,52 @@ commit, and verifies their sha256.
 """
 
 
+GGUF_CARD = """---
+license: {license_id}
+base_model:
+{base_models}
+tags:
+- ollaya
+- gguf
+- llama.cpp
+- decision-model
+- system-one
+pipeline_tag: text-classification
+---
+
+# {model} for Ollaya
+
+[Ollaya](https://github.com/ollaya-dev/ollaya) package of {base_links}{by}.
+Ollaya runs open decision models locally, the way Ollama runs LLMs: typed questions in,
+calibrated answers out, behind a TypeSafe-compatible API.
+
+```sh
+ollaya run {model}
+```
+
+## What is in this repository
+
+This repository holds only the files Ollaya derives, with no weights. The model is the authors' own GGUF
+file: `ollaya pull` downloads it from their repository, unmodified and pinned to a commit, verifies its
+sha256, and Ollaya runs it on llama.cpp.
+
+| Tag | The authors' GGUF | Files |
+|---|---|---|
+{rows}
+
+Each tag has `decision.json` (the prompt, the option labels Ollaya reads and llama.cpp's settings) and
+`calibration.json` (temperatures).{mmproj_note}
+
+## Parity
+
+{parity}
+
+## License
+
+{license_text_note}
+"""
+
+
 LAYA_PARITY = """The exports are checked against the PyTorch reference on 2,383 questions per checkpoint.
 The checks use typed-decisions plus multilingual and edge cases:
 
@@ -90,7 +138,8 @@ def main():
     if os.path.exists(stage):
         shutil.rmtree(stage)
     os.makedirs(stage)
-    rows, base_models, any_fp16, any_questions = [], [], False, False
+    rows, base_models, any_fp16, any_questions, any_mmproj = [], [], False, False, False
+    gguf = all("gguf" in v for v in spec["tags"].values())
     for tag in spec["tags"]:
         with open(os.path.join(REGISTRY, "v2", ns, model, "manifests", tag)) as f:
             manifest = json.load(f)
@@ -121,21 +170,32 @@ def main():
             if repo not in base_models:
                 base_models.append(repo)
         upstream = ", ".join("[%s@%s](https://huggingface.co/%s/tree/%s)" % (r, c[:7], r, c) for r, c in sources)
+        if gguf:  # the file the tag pulls, and a vision tag's projector from the same revision
+            upstream += " `%s`" % v["gguf"] + (" + `%s`" % v["mmproj"] if v.get("mmproj") else "")
+            any_mmproj = any_mmproj or bool(v.get("mmproj"))
         rows.append("| `%s:%s` | %s | %s |" % (model, tag, upstream, ", ".join("`%s/%s`" % (tag, n) for n in names)))
     by = spec.get("author", "")
     base_model = base_models[0]
-    card = CARD.format(
+    common = dict(
         license_id=spec["license"].lower(), model=model,
         base_models="\n".join("- " + b for b in base_models),
         base_links=" and ".join("**[%s](https://huggingface.co/%s)**" % (b, b) for b in base_models),
         by=(" by " + by) if by else "", rows="\n".join(rows),
-        graphs_note=("Each tag has an fp32 graph (CPU) and an fp16 graph (GPU)." if any_fp16
-                     else "Each tag has an fp32 graph, used on CPU and GPU."),
-        questions_note=(" `questions.json` holds the built-in questions: the model answers those and no "
-                        "others, so requests leave `questions` out." if any_questions else ""),
         parity=spec.get("parity", LAYA_PARITY),
         license_text_note="Same as the upstream model (%s). Ollaya itself is Apache-2.0." % spec["license"],
     )
+    if "PENDING" in common["parity"]:
+        raise SystemExit("%s: the catalog's parity text is still a placeholder" % model)
+    if gguf:
+        card = GGUF_CARD.format(**common, mmproj_note=(
+            " A vision tag also pulls the authors' vision projector from the same revision, which reads the "
+            "images." if any_mmproj else ""))
+    else:
+        card = CARD.format(**common, graphs_note=(
+            "Each tag has an fp32 graph (CPU) and an fp16 graph (GPU)." if any_fp16
+            else "Each tag has an fp32 graph, used on CPU and GPU."), questions_note=(
+            " `questions.json` holds the built-in questions: the model answers those and no "
+            "others, so requests leave `questions` out." if any_questions else ""))
     with open(os.path.join(stage, "README.md"), "w") as f:
         f.write(card)
     print("staged %s" % os.path.abspath(stage))

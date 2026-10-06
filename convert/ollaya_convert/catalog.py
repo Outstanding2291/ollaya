@@ -416,7 +416,11 @@ CATALOG = {
                                mmproj="gguf/mmproj-Winnow-E4B.gguf"),
         },
         "aliases": {"latest": "12b"},
-        "parity": "PARITY-PENDING",
+        "parity": "Ollaya's runner matches stock llama-server of the pinned build (b11146) on the same GGUF and the "
+                  "same device: 505 text questions per model, every decision the same, option logits within 1.3e-5 "
+                  "and probabilities within 3.0e-6, on CUDA (RTX 4090, Linux and Windows) and, for e4b, the x86-64 "
+                  "CPU. With the vision projector, 65 image questions per model, every decision the same, option "
+                  "logits within 1.2e-5 (RTX 4070, RTX 5090 and the x86-64 CPU).",
     },
     "cygnet": {
         "namespace": "library",
