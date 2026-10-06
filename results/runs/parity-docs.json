@@ -83,17 +83,17 @@
    "family": "winnow",
    "model": "winnow:e4b",
    "device": "vulkan",
-   "device_detail": "RTX 4090, Windows, llama.cpp win-vulkan-x64 of the same build (not shipped)",
+   "device_detail": "RTX 4090, Windows, llama.cpp win-vulkan-x64 of the same build (#27)",
    "reference": "stock llama-server of the pinned build (b11146), loaded with the author's GGUF on the device under test",
    "kind": "runtime",
    "questions": 505,
-   "decisions": "501 of 505",
-   "max_logit_diff": 0.32,
-   "max_prob_diff": 0.055,
-   "date": null,
-   "pass": false,
-   "cite": "docs/families/winnow.md:133-135",
-   "note": "fails the gate (1e-3 on logits, every decision the same); Ollaya does not use Vulkan (#27). Values are 'within 0.32' / 'within 0.055'"
+   "decisions": "505/505",
+   "max_logit_diff": 1.1e-05,
+   "max_prob_diff": 3e-06,
+   "date": "2026-10-01",
+   "pass": true,
+   "cite": "docs/families/winnow.md:133-137",
+   "note": "against the CUDA goldens instead: 501 of 505 decisions, log-probabilities up to 0.32 apart, about as far as the x86-64 CPU (0.28); measured and documented, not gated (ADR 0003, point 7)"
   },
   {
    "family": "winnow",
@@ -108,7 +108,7 @@
    "max_prob_diff": null,
    "date": "2026-09-27",
    "pass": true,
-   "cite": "docs/distribution.md:123-127"
+   "cite": "docs/distribution.md:126-130"
   },
   {
    "family": "decision",
@@ -341,7 +341,7 @@
    "max_prob_diff": 3.7e-06,
    "date": "2026-09-27",
    "pass": true,
-   "cite": "docs/distribution.md:123-126",
+   "cite": "docs/distribution.md:126-129",
    "note": "3.7e-6 listed after 'prob max' in the same sentence; read as probability"
   },
   {
@@ -687,7 +687,7 @@
    "max_prob_diff": 6.1e-06,
    "date": "2026-09-27",
    "pass": true,
-   "cite": "docs/distribution.md:123-127"
+   "cite": "docs/distribution.md:126-130"
   },
   {
    "family": "decider-vision",
@@ -1060,7 +1060,7 @@
    "max_prob_diff": null,
    "date": "2026-09-27",
    "pass": null,
-   "cite": "docs/distribution.md:124-126",
+   "cite": "docs/distribution.md:127-129",
    "note": "fp16 differs from the fp32 reference on near-ties; doc reports it as expected, not as a failure"
   },
   {
@@ -1076,7 +1076,7 @@
    "max_prob_diff": null,
    "date": "2026-09-27",
    "pass": null,
-   "cite": "docs/distribution.md:125-126",
+   "cite": "docs/distribution.md:128-129",
    "note": "fp16 near-tie differences, same as with CUDA 13"
   },
   {
@@ -1092,7 +1092,7 @@
    "max_prob_diff": 0.00022,
    "date": null,
    "pass": true,
-   "cite": "docs/distribution.md:377"
+   "cite": "docs/distribution.md:407"
   },
   {
    "family": "laya",
@@ -1107,7 +1107,7 @@
    "max_prob_diff": 6.5e-06,
    "date": null,
    "pass": true,
-   "cite": "docs/distribution.md:377"
+   "cite": "docs/distribution.md:407"
   },
   {
    "family": "laya",
@@ -1122,7 +1122,7 @@
    "max_prob_diff": 0.00022,
    "date": null,
    "pass": true,
-   "cite": "docs/distribution.md:391",
+   "cite": "docs/distribution.md:421",
    "note": "0 answers outside rounding"
   },
   {
@@ -1138,7 +1138,7 @@
    "max_prob_diff": 0.04,
    "date": null,
    "pass": null,
-   "cite": "docs/distribution.md:392",
+   "cite": "docs/distribution.md:422",
    "note": "fp16 near-tie difference; doc reports it as expected (docs/api.md:413-415: 99.1-99.6% agreement)"
   },
   {
@@ -1154,7 +1154,7 @@
    "max_prob_diff": 7.4e-05,
    "date": null,
    "pass": true,
-   "cite": "docs/distribution.md:393"
+   "cite": "docs/distribution.md:423"
   }
  ],
  "not_run": [
