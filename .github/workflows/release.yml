@@ -126,14 +126,59 @@ jobs:
       - name: Minimum macOS version
         if: runner.os == 'macOS'
         run: vtool -show-build target/release/ollaya
+      - name: Reuse unchanged CUDA packs
+        id: packs
+        if: contains(matrix.package-args, '--cuda')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PLATFORM: ${{ matrix.platform }}
+          PACKAGE_ARGS: ${{ matrix.package-args }}
+        # A CUDA pack is third-party libraries only, pinned in the files scripts/cuda-pack-key.sh
+        # hashes. When the previous release's key for a pack is this build's, its archive and
+        # FILES.sha256 list are that release's, byte for byte, and the pack is not built and
+        # compressed again (the smoke tests below still unpack and check them). Every pack's key
+        # goes into the release, so the next one can compare.
+        run: |
+          mkdir -p dist
+          prev=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName 2>/dev/null || true)
+          args=
+          for flag in $PACKAGE_ARGS; do
+            case $flag in
+              --cuda) pack=cuda ;;
+              --cuda12) pack=cuda12 ;;
+              *) args="$args $flag"; continue ;;
+            esac
+            name=ollaya-$PLATFORM-$pack
+            key=$(scripts/cuda-pack-key.sh "$PLATFORM" "$pack")
+            old=
+            if [ -n "$prev" ] && gh release download "$prev" --repo "$GITHUB_REPOSITORY" \
+                -p "$name.key" -O "$RUNNER_TEMP/$name.key" --clobber 2>/dev/null; then
+              old=$(cat "$RUNNER_TEMP/$name.key")
+            fi
+            if [ "$old" = "$key" ]; then
+              echo "$name: key $key unchanged since $prev, reusing its archive"
+              gh release download "$prev" --repo "$GITHUB_REPOSITORY" -p "$name.*" -D dist --clobber
+            else
+              echo "$name: key $key (previous: ${old:-none}), building"
+              args="$args $flag"
+            fi
+            echo "$key" >"dist/$name.key"
+          done
+          ls -l dist
+          echo "args=$args" >>"$GITHUB_OUTPUT"
       - name: Package
         shell: bash
         env:
           PLATFORM: ${{ matrix.platform }}
           PACKAGE_ARGS: ${{ matrix.package-args }}
+          PACKS_RAN: ${{ steps.packs.outcome }}
+          PACKS_ARGS: ${{ steps.packs.outputs.args }}
           FEATURES: ${{ matrix.features }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
+          # The flags left after the reuse step: --cuda or --cuda12 only for packs to build.
+          [ "$PACKS_RAN" != success ] || PACKAGE_ARGS=$PACKS_ARGS
           export OLLAYA_CARGO_FEATURES=$FEATURES
           case $PLATFORM in
             linux-amd64 | linux-arm64) export OLLAYA_CUDA_RUNNER=target/cuda-dynamic/release/ollaya ;;
@@ -231,6 +276,7 @@ jobs:
             dist/*-cuda.sha256
             dist/*-cuda12.sha256
             dist/*-mlx.sha256
+            dist/*.key
           if-no-files-found: error
           compression-level: 0
           retention-days: 7

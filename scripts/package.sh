@@ -642,7 +642,9 @@ stage_cuda() {
 
     cp "$ort/ThirdPartyNotices.txt" "$doc/onnxruntime-ThirdPartyNotices.txt"
     {
-        printf 'Ollaya %s CUDA %s accelerator package (%s): third-party notices\n\n' "$VERSION" "$M" "$PLATFORM"
+        # No Ollaya version in the pack: its content depends only on the pins cuda-pack-key.sh
+        # hashes, so a later release can reuse the archive as it is.
+        printf 'Ollaya CUDA %s accelerator package (%s): third-party notices\n\n' "$M" "$PLATFORM"
         printf 'Everything in lib/ollaya/%s is third-party software. None of it is covered by\n' "$CUDA_PACK"
         printf "Ollaya's Apache-2.0 license.\n\n"
         printf '1. ONNX Runtime %s (https://github.com/microsoft/onnxruntime), Microsoft'"'"'s\n' \
