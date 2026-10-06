@@ -341,6 +341,8 @@ CATALOG = {
         "family": "arbiter",
         "author": "Codekins Pvt Ltd · Zyot Lab",
         "license": ARBITER_LICENSE,
+        # The Hugging Face card's `license: other` (publish_hf).
+        "hf_license": ("apache-2.0-and-gemma", "https://ai.google.dev/gemma/terms"),
         "license_text": _arbiter_license("hiteshluke/arbiter-4b", "gemma-3-4b-it"),
         "tags": {
             # The tokenizer is the base's: the arbiter repository's tokenizer.json has truncation (255) on.

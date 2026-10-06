@@ -21,7 +21,7 @@ from .catalog import CATALOG
 from .package import MEDIA, REGISTRY
 
 CARD = """---
-license: {license_id}
+{license_yaml}
 base_model:
 {base_models}
 library_name: onnx
@@ -68,7 +68,7 @@ commit, and verifies their sha256.
 
 
 GGUF_CARD = """---
-license: {license_id}
+{license_yaml}
 base_model:
 {base_models}
 tags:
@@ -176,8 +176,16 @@ def main():
         rows.append("| `%s:%s` | %s | %s |" % (model, tag, upstream, ", ".join("`%s/%s`" % (tag, n) for n in names)))
     by = spec.get("author", "")
     base_model = base_models[0]
+    # An SPDX id goes in as is; anything else (arbiter's "Apache-2.0 (...) and the Gemma Terms of Use (...)")
+    # is Hugging Face's `other`, with the name and link the catalog gives.
+    lic = spec["license"]
+    if " " in lic:
+        name, link = spec["hf_license"]
+        license_yaml = "license: other\nlicense_name: %s\nlicense_link: %s" % (name, link)
+    else:
+        license_yaml = "license: " + lic.lower()
     common = dict(
-        license_id=spec["license"].lower(), model=model,
+        license_yaml=license_yaml, model=model,
         base_models="\n".join("- " + b for b in base_models),
         base_links=" and ".join("**[%s](https://huggingface.co/%s)**" % (b, b) for b in base_models),
         by=(" by " + by) if by else "", rows="\n".join(rows),
