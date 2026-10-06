@@ -130,7 +130,7 @@ The runner must match every decision, with option logits within 1e-3. Measured o
 - **Author's server.** e4b against winnow-inference's own server on the same requests: in its reference
   mode all 503 decisions agree (probability difference p99 3.0e-6, max 0.0028); in its default mode
   501 of 503 agree (p99 0.030, max 0.052).
-- **Vulkan (#27, not in a release yet).** llama.cpp's Vulkan backend on the same RTX 4090 (Windows,
+- **Vulkan (#27, from Ollaya 0.12.0).** llama.cpp's Vulkan backend on the same RTX 4090 (Windows,
   `win-vulkan-x64` of the same build), gated like every device against stock llama-server on that
   device: e4b 505 of 505 decisions, option logits within 1.1e-5, probabilities within 3.0e-6
   (2026-10-01). Against the CUDA goldens instead it differs by up to 0.32 in log-probability (501 of

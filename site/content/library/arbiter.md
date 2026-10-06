@@ -1,6 +1,6 @@
 Arbiter by [Codekins Pvt Ltd · Zyot Lab](https://huggingface.co/hiteshluke/arbiter-4b) is Gemma 3 4B IT with a LoRA and a fixed 24-slot head, trained on Jev-style decisions. One prompt per question ends at `Answer:`, and the head reads every option there at once: `T` and `F` for yes/no, the letters `A` to `P` for a choice, the digits `0` to `5` for a score. It never generates text.
 
-> Needs an Ollaya release that runs the `arbiter-fixed-v1` layout.
+> Needs Ollaya 0.12.0 or newer, the first release that runs the `arbiter-fixed-v1` layout.
 
 ## Models
 
