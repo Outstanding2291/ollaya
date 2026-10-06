@@ -295,6 +295,7 @@ const overlays: Record<string, ModelOverlay> = {
     tags: {
       latest: { summary: 'Same as snap:2b.' },
       '2b': { summary: "snap1-2b (MiniCPM5-2B), Q8_0 GGUF, raw probabilities: 0.648 on typed decisions; up to 26 options per question." },
+      '2b-q4_k_m': { summary: "snap1-2b, Q4_K_M GGUF (snap's own default file, 1.6 GB): 0.660 on typed decisions; 63 ms for five questions on an RTX 4090." },
     },
   },
   gliclass: {

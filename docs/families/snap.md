@@ -9,9 +9,10 @@ bytes. Requested in #46.
 | Tag | Weights | Temperature |
 |---|---|---|
 | `snap:2b`, `snap:latest` | `logitlab/snap1-2b-GGUF@39321915` `snap1-2b-q8_0.gguf` (2.7 GB) | 1.0 (raw probabilities, as snap ships them) |
+| `snap:2b-q4_k_m` | the same commit, `snap1-2b-q4_k_m.gguf` (1.6 GB), snap's own default file | 1.0 |
 
-snap's own default file is Q4_K_M (1.5 GB). The author measured Q8_0 and Q4_K_M the same on typed-decisions
-(0.655 and 0.654 with snap 0.5.0), and Ollaya defaults to Q8_0 wherever it fits.
+The author measured Q8_0 and Q4_K_M the same on typed-decisions (0.655 and 0.654 with snap 0.5.0); Ollaya
+defaults to Q8_0 wherever it fits, and the two tags share the prompt, the readout and `calibration.json`.
 
 ## Prompt
 
@@ -69,6 +70,8 @@ invalid and 3 as `TOO_MANY_OPTIONS`; 3 more are rejected by the API before any e
 |---|---|---|---|---|---|
 | 2b Q8_0 | x86-64 CPU | 573/573 identical to snap's | 573/573 | 7.4e-6 | 1.9e-6 |
 | 2b Q8_0 | CUDA, RTX 5090 | 573/573 identical to snap's | 573/573 | 7.4e-6 | 1.9e-6 |
+| 2b Q4_K_M | x86-64 CPU | 573/573 identical to snap's | 573/573 | 7.4e-6 | 1.9e-6 |
+| 2b Q4_K_M | CUDA, RTX 4090 | 573/573 identical to snap's | 573/573 | 7.1e-6 | 1.9e-6 |
 | 2b Q8_0 | CUDA, RTX 4090 | 573/573 identical to snap's | 573/573 | 7.3e-6 | 1.9e-6 |
 
 The RTX 4090's reference is the same prompts replayed on stock `llama-server` b11146 on that GPU
@@ -76,7 +79,8 @@ The RTX 4090's reference is the same prompts replayed on stock `llama-server` b1
 the RTX 4090 differs by up to 0.28 in option logits and on 8 of 573 decisions, measured and not gated.
 
 Five questions take 84 ms in the runner on the RTX 5090 and 65 ms on the RTX 4090 (p50 of 20 requests,
-`parity_llama --latency`), one cold pass per question. snap shares the state's prefix between questions; the
+`parity_llama --latency`), one cold pass per question; Q4_K_M takes 62 ms on the RTX 4090 and 2.1 s on the
+x86-64 CPU. snap shares the state's prefix between questions; the
 author reports 48 ms on an RTX 4090 with Q4_K_M.
 
 RTX 4090, HTTP API (Ollaya 0.10.0, Q8_0 on CUDA): the triage preset (five questions, 606 prompt tokens) takes
@@ -87,7 +91,9 @@ RTX 4090, HTTP API (Ollaya 0.10.0, Q8_0 on CUDA): the triage preset (five questi
 
 - **Typed-decisions** (all 400 test states, 2,000 questions, argmax against the majority label, through
   Ollaya's runtime: `logits` example and `quality_runtime.py`): **0.648**, ECE 0.062 at temperature 1. By type:
-  choice 0.655, score 0.600, noul 0.703.
+  choice 0.655, score 0.600, noul 0.703. Q4_K_M (`snap:2b-q4_k_m`, measured 2026-10-06 the same way on CUDA):
+  **0.660**, ECE 0.047; choice 0.653, score 0.585, noul 0.767. The 25-question gap between the two files is
+  within what quantization moves on this set; the author's own runs put them 1 question apart.
 - **The author's figure** with snap itself: 0.655 on Q8_0 (snap 0.5.0, Apple M1 Max). Ollaya's runtime is 15
   questions lower. The prompts are identical, so the gap lies in reading the answer: snap pools each letter's
   space- and newline-prefixed tokens and evaluates the state once for all questions, Ollaya reads the bare

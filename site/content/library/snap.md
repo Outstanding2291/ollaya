@@ -7,8 +7,9 @@ snap1-2b by [logitlab](https://huggingface.co/logitlab/snap1-2b-GGUF) is MiniCPM
 | Tag | Weights | Typed-decisions accuracy | Five questions, RTX 4090 |
 |---|---|---|---|
 | `snap:latest`, `snap:2b` | snap1-2b (MiniCPM5-2B), Q8_0 GGUF, 2.7 GB | 0.648 | 68 ms |
+| `snap:2b-q4_k_m` | the same model, Q4_K_M GGUF (snap's own default file), 1.6 GB | 0.660 | 63 ms |
 
-Typed-decisions accuracy is the argmax against the majority label on all 400 typed-decisions states, measured by Ollaya, with a calibration error (ECE) of 0.062 on snap's raw probabilities. The time is the median of 15 warm requests of the triage preset through the HTTP API. The author reports 0.655 with snap itself on the same file: the prompts are identical, and snap reads the answer letters slightly differently (below). The author also reports that the checkpoint never trained on typed-decisions.
+Typed-decisions accuracy is the argmax against the majority label on all 400 typed-decisions states, measured by Ollaya, with a calibration error (ECE) of 0.062 on snap's raw probabilities (0.047 for Q4_K_M; the two files are a few questions apart either way, as the author also found). The time is the median of 15 warm requests of the triage preset through the HTTP API. The author reports 0.655 with snap itself on the same file: the prompts are identical, and snap reads the answer letters slightly differently (below). The author also reports that the checkpoint never trained on typed-decisions.
 
 ## Usage
 

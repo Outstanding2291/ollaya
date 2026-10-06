@@ -515,11 +515,18 @@ CATALOG = {
                         "snap1-2b (MiniCPM5-2B with a merged LoRA), Q8_0 GGUF on llama.cpp: the option letters' "
                         "logits after snap's own prompt, raw probabilities. Up to 26 options.",
                         "2B", ["en", "it"]),
+            # snap's own default file, from the same commit: 1.56 GB, measured with its own goldens.
+            "2b-q4_k_m": _gguf("snap-v1-snap1-2b-q4_k_m", "logitlab/snap1-2b-GGUF",
+                               "39321915452e54428e18558ba882c771bc856110", "snap1-2b-q4_k_m.gguf",
+                               "snap1-2b (MiniCPM5-2B with a merged LoRA), Q4_K_M GGUF, snap's own default file: "
+                               "the same prompt and readout as snap:2b in 1.6 GB.",
+                               "2B", ["en", "it"]),
         },
         "aliases": {"latest": "2b"},
         "parity": "Ollaya's runner matches stock llama-server of the pinned build (b11146) on the same GGUF, CPU "
-                  "and CUDA (RTX 5090): 573 questions, every decision the same, option logits within 7.4e-6 and "
-                  "probabilities within 1.9e-6. The prompt token ids are snap's own, from its export-prompts.",
+                  "and CUDA (RTX 5090 for Q8_0, RTX 4090 for Q4_K_M): 573 questions per file, every decision the "
+                  "same, option logits within 7.4e-6 and probabilities within 1.9e-6. The prompt token ids are "
+                  "snap's own, from its export-prompts.",
     },
     "jeeves": {
         "namespace": "library",
