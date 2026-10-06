@@ -40,13 +40,13 @@ def main():
     a = ap.parse_args()
     snap = a.model or ref.snapshot()
     model, head, enc = ref.load(snap, device=a.device)
-    decision = json.load(open(os.path.join(a.model_dir, "decision.json")))
-    T = json.load(open(os.path.join(a.model_dir, "calibration.json")))["temperature"][0]
+    decision = json.load(open(os.path.join(a.model_dir, "decision.json"), encoding="utf-8"))
+    T = json.load(open(os.path.join(a.model_dir, "calibration.json"), encoding="utf-8"))["temperature"][0]
     lay = JeevesLayout(tokenizers.Tokenizer.from_file(os.path.join(a.model_dir, "tokenizer.json")), decision)
     path = os.path.join(os.path.dirname(os.path.abspath(a.model_dir)), "goldens-jeeves-9b.jsonl")
     done = set()
     if a.resume and os.path.exists(path):
-        done = {json.loads(line)["id"].split("#")[0] for line in open(path) if line.strip()}
+        done = {json.loads(line)["id"].split("#")[0] for line in open(path, encoding="utf-8") if line.strip()}
 
     def record(cid, state, questions):
         rows, meta = ref.encode(enc, state, questions)
@@ -58,7 +58,7 @@ def main():
         return {"id": cid, "state": state, "questions": questions, "error": None, "rows": rows, "plan": plan}
 
     n, t0 = 0, time.time()
-    with open(path, "a" if a.resume else "w") as f:
+    with open(path, "a" if a.resume else "w", encoding="utf-8") as f:
         for cid, state, questions in cases.all_cases(a.td_limit):
             if cid in done:
                 continue

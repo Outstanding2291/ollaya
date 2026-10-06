@@ -56,12 +56,12 @@ def main():
     a = ap.parse_args()
 
     d = ref.load(a.root or ref.snapshot(a.model), device=a.device)
-    decision = json.load(open(os.path.join(a.model_dir, "decision.json")))
-    calib = json.load(open(os.path.join(a.model_dir, "calibration.json")))["temperature"]
+    decision = json.load(open(os.path.join(a.model_dir, "decision.json"), encoding="utf-8"))
+    calib = json.load(open(os.path.join(a.model_dir, "calibration.json"), encoding="utf-8"))["temperature"]
     lay = DeciderLayout(tokenizers.Tokenizer.from_file(os.path.join(a.model_dir, "tokenizer.json")), decision)
     path = a.out or os.path.join(os.path.dirname(os.path.abspath(a.model_dir)), "goldens-%s.jsonl" % a.model)
     n = 0
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         for cid, state, questions in cases.all_cases(a.td_limit):
             try:
                 rec = record(d, lay, calib, cid, state, questions)

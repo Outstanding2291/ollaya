@@ -61,15 +61,15 @@ def main():
 
     adapter, base = (a.adapter, a.base) if a.adapter and a.base else ref.snapshot()
     tok, model = ref.load(adapter, base, device=a.device)
-    decision = json.load(open(os.path.join(a.model_dir, "decision.json")))
-    T = json.load(open(os.path.join(a.model_dir, "calibration.json")))["temperature"][0]
+    decision = json.load(open(os.path.join(a.model_dir, "decision.json"), encoding="utf-8"))
+    T = json.load(open(os.path.join(a.model_dir, "calibration.json"), encoding="utf-8"))["temperature"][0]
     lay = NimbleLayout(tokenizers.Tokenizer.from_file(os.path.join(a.model_dir, "tokenizer.json")), decision)
     path = a.out or os.path.join(os.path.dirname(os.path.abspath(a.model_dir)), "goldens-nimble-9b-v2.jsonl")
     n, t0 = 0, time.time()
     done = set()
     if a.resume and os.path.exists(path):
-        done = {json.loads(line)["id"].split("#")[0] for line in open(path) if line.strip()}
-    with open(path, "a" if a.resume else "w") as f:
+        done = {json.loads(line)["id"].split("#")[0] for line in open(path, encoding="utf-8") if line.strip()}
+    with open(path, "a" if a.resume else "w", encoding="utf-8") as f:
         for cid, state, questions in cases.all_cases(a.td_limit):
             if cid in done:
                 continue

@@ -108,7 +108,7 @@ def export(slug, out_dir, run_dir, base_dir):
     ox.cleanup(tmp)
     shutil.copy(os.path.join(base_dir, "tokenizer.json"), os.path.join(out_dir, "tokenizer.json"))
 
-    cfg = json.load(open(os.path.join(run_dir, "adapter_config.json")))
+    cfg = json.load(open(os.path.join(run_dir, "adapter_config.json"), encoding="utf-8"))
     decision = {
         "engine": "onnx",
         "family": "arbiter",
@@ -181,7 +181,7 @@ def export(slug, out_dir, run_dir, base_dir):
 
 
 def text_model_window(base_dir):
-    cfg = json.load(open(os.path.join(base_dir, "config.json")))
+    cfg = json.load(open(os.path.join(base_dir, "config.json"), encoding="utf-8"))
     return cfg.get("text_config", cfg)["sliding_window"]
 
 

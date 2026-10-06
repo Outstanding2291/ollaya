@@ -141,7 +141,7 @@ def main():
     rows, base_models, any_fp16, any_questions, any_mmproj = [], [], False, False, False
     gguf = all("gguf" in v for v in spec["tags"].values())
     for tag in spec["tags"]:
-        with open(os.path.join(REGISTRY, "v2", ns, model, "manifests", tag)) as f:
+        with open(os.path.join(REGISTRY, "v2", ns, model, "manifests", tag), encoding="utf-8") as f:
             manifest = json.load(f)
         os.makedirs(os.path.join(stage, tag))
         names = []
@@ -204,7 +204,7 @@ def main():
             else "Each tag has an fp32 graph, used on CPU and GPU."), questions_note=(
             " `questions.json` holds the built-in questions: the model answers those and no "
             "others, so requests leave `questions` out." if any_questions else ""))
-    with open(os.path.join(stage, "README.md"), "w") as f:
+    with open(os.path.join(stage, "README.md"), "w", encoding="utf-8") as f:
         f.write(card)
     print("staged %s" % os.path.abspath(stage))
     if a.dry_run:

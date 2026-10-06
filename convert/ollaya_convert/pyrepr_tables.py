@@ -53,7 +53,7 @@ def main():
         lines.append("    " + " ".join(row))
     lines.append("];")
     path = os.path.normpath(os.path.join(CRATE, "src", "printable.rs"))
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
     print("wrote %s: %d ranges" % (path, len(ranges)))
 

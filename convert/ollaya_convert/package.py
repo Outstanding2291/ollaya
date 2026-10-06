@@ -127,7 +127,7 @@ def write_manifest(namespace, model, tag, config, layers):
     manifest = {"schemaVersion": 2, "mediaType": MANIFEST_V2, "config": config, "layers": layers}
     d = os.path.join(REGISTRY, "v2", namespace, model, "manifests")
     os.makedirs(d, exist_ok=True)
-    with open(os.path.join(d, tag), "w") as f:
+    with open(os.path.join(d, tag), "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2)
     print("  %s/%s:%s  %d layers" % (namespace, model, tag, len(layers)))
 

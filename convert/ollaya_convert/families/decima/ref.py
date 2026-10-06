@@ -105,7 +105,7 @@ def code():
                         m.name = parts[1]
                         t.extract(m, src, filter="data")
             os.remove(tmp)
-    with open(os.path.join(src, "pyproject.toml")) as f:
+    with open(os.path.join(src, "pyproject.toml"), encoding="utf-8") as f:
         if 'version = "1.1.1"' not in f.read():
             raise SystemExit("%s is not decima 1.1.1 (%s at %s)" % (src, CODE["repo"], CODE["commit"]))
     if src not in sys.path:

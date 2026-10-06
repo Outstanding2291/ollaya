@@ -90,7 +90,7 @@ def run(a):
     jev.API_URL = a.url
     subsets = a.subsets or SUBSETS
     # One untimed request first, so the model load is not in the first record's latency.
-    first = json.loads(open(Path(a.data) / subsets[0] / "all.jsonl").readline())
+    first = json.loads(open(Path(a.data) / subsets[0] / "all.jsonl", encoding="utf-8").readline())
     transport(a.url)(dio.request_for(first, a.model))
     for subset in subsets:
         data = Path(a.data) / subset / "all.jsonl"
@@ -119,8 +119,9 @@ def summarize(run_dir):
         path = Path(run_dir) / subset / "summary.json"
         if not path.exists():
             continue
-        s = json.load(open(path))
-        sub_rows = [json.loads(line) for line in open(Path(run_dir) / subset / "rows.jsonl") if line.strip()]
+        s = json.load(open(path, encoding="utf-8"))
+        with open(Path(run_dir) / subset / "rows.jsonl", encoding="utf-8") as f:
+            sub_rows = [json.loads(line) for line in f if line.strip()]
         rows += sub_rows
         per[subset] = {"n": s["count"], "errors": s["errors"], "accuracy": s["summary"]["all"]["accuracy"],
                        "ece10": s["calibration"]["ece10"], "type": sub_rows[0]["type"]}
@@ -147,7 +148,7 @@ def report(a):
     _nimble()
     out = [summarize(d) for d in a.runs]
     if a.json:
-        json.dump(out, open(a.json, "w"), indent=2)
+        json.dump(out, open(a.json, "w", encoding="utf-8"), indent=2)
     print("| Run | Records | Errors | Macro acc | Micro acc | Choice | Noul | Score | ECE (macro) | ECE (pooled) | Brier | Median | p95 |")
     print("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|")
     f = lambda x, d=3: "n/a" if x is None else ("%.*f" % (d, x))  # noqa: E731

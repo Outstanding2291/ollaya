@@ -48,7 +48,7 @@ class LlamaServer:
         else:
             cmd = [binary, "-m", model, "--port", str(port), "--host", "127.0.0.1", "-c", str(ctx),
                    "-np", str(parallel), "-ngl", str(ngl), "--no-webui", *extra]
-        out = open(log, "w") if log else subprocess.DEVNULL
+        out = open(log, "w", encoding="utf-8") if log else subprocess.DEVNULL
         proc = subprocess.Popen(cmd, stdout=out, stderr=subprocess.STDOUT, env=env)
         srv = cls("http://127.0.0.1:%d" % port, proc)
         srv.command = cmd

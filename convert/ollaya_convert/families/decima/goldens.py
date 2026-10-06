@@ -48,7 +48,7 @@ def main():
     ap.add_argument("--device", default="cpu")
     ap.add_argument("--out", default=None)
     a = ap.parse_args()
-    decision = json.load(open(os.path.join(a.model_dir, "decision.json")))
+    decision = json.load(open(os.path.join(a.model_dir, "decision.json"), encoding="utf-8"))
     slug = next(k for k, m in ref.MODELS.items() if m["repo"] == decision["upstream"]["repo"])
     d = ref.load(a.device, slug)
     lay = DecimaLayout(tokenizer(os.path.join(a.model_dir, "tokenizer.json")), decision)
@@ -76,7 +76,7 @@ def main():
         return rec, True
 
     n, t0 = 0, time.time()
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         for cid, state, questions in all_cases(a.td_limit):
             if shared_rule(questions):
                 continue

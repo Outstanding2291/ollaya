@@ -127,7 +127,7 @@ def encode(tok, state, questions):
 
 
 def head_meta(run_dir: str) -> Dict[str, Any]:
-    with open(os.path.join(run_dir, "head_meta.json")) as f:
+    with open(os.path.join(run_dir, "head_meta.json"), encoding="utf-8") as f:
         meta = json.load(f)
     if meta.get("num_slots") != NUM_SLOTS or meta.get("verbalizer") != VERBALIZERS:
         raise SystemExit("head_meta.json: %d slots %r, expected %d slots %r"

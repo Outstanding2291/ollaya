@@ -108,7 +108,7 @@ def scratch_dir(prefix):
 
 
 def write_json(path, obj):
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(obj, f, indent=2, ensure_ascii=False)
         f.write("\n")
 

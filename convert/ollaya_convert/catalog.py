@@ -9,7 +9,7 @@ import os
 from .model_paths import DEFAULT_ROOT
 
 OUT = os.path.join(os.path.dirname(__file__), "..", "out")
-LICENSE_APACHE = open(os.path.join(os.path.dirname(__file__), "..", "..", "LICENSE")).read()
+LICENSE_APACHE = open(os.path.join(os.path.dirname(__file__), "..", "..", "LICENSE"), encoding="utf-8").read()
 
 LAYA_REPO = "convaiinnovations/laya"
 LAYA_COMMIT = "aa8c91ca088ec597df95a0d1c76b3063cb2ae5e8"

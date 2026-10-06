@@ -220,7 +220,7 @@ def export(name: str, out_dir: str, root: str) -> str:
     # The tokenizer and decision config travel with the graph as their own layers.
     src = os.path.join(root, laya_ref.CHECKPOINTS[name] or "")
     shutil.copy(os.path.join(src, "tokenizer", "tokenizer.json"), os.path.join(out_dir, "tokenizer.json"))
-    with open(os.path.join(src, "rl_agent_config.json")) as f:
+    with open(os.path.join(src, "rl_agent_config.json"), encoding="utf-8") as f:
         cfg = json.load(f)
     tok = agent.tok
     decision = {
@@ -243,9 +243,9 @@ def export(name: str, out_dir: str, root: str) -> str:
         "temperature": cfg.get("temperature", [1.0, 1.0, 1.0]),
         "temperature_by_options": cfg.get("temperature_by_options", {}),
     }
-    with open(os.path.join(out_dir, "decision.json"), "w") as f:
+    with open(os.path.join(out_dir, "decision.json"), "w", encoding="utf-8") as f:
         json.dump(decision, f, indent=2)
-    with open(os.path.join(out_dir, "calibration.json"), "w") as f:
+    with open(os.path.join(out_dir, "calibration.json"), "w", encoding="utf-8") as f:
         json.dump(calibration, f, indent=2)
     return path
 

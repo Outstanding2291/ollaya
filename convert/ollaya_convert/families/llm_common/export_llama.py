@@ -437,14 +437,14 @@ def main():
         }
         decision["llama"] = {"n_ctx": a.n_ctx, "swa_full": swa, "plan": getattr(lay, "plan", "prefix"),
                              "build": LLAMA_BUILD}
-        with open(os.path.join(out, "decision.json"), "w") as f:
+        with open(os.path.join(out, "decision.json"), "w", encoding="utf-8") as f:
             json.dump(decision, f, indent=1, ensure_ascii=False)
         if a.calibration:
-            cal = json.load(open(a.calibration))
+            cal = json.load(open(a.calibration, encoding="utf-8"))
             cal = {"temperature": cal["temperature"], "temperature_by_options": cal.get("temperature_by_options", {}),
                    "temperature_range": [0.2, 40.0], "source": cal.get("source", "")}
         elif a.temperatures:
-            t = json.load(open(a.temperatures))["temperatures"]
+            t = json.load(open(a.temperatures, encoding="utf-8"))["temperatures"]
             cal = {"temperature": [t["choice"], t["score"], t["noul"]], "temperature_by_options": {},
                    "source": a.temperature_source or "the author's per-type temperatures (%s)" % os.path.basename(a.temperatures)}
         elif a.temperature is not None:
@@ -453,17 +453,17 @@ def main():
         else:
             cal = {"temperature": [1.0, 1.0, 1.0], "temperature_by_options": {},
                    "source": a.temperature_source or "uncalibrated (temperature 1.0)"}
-        with open(os.path.join(out, "calibration.json"), "w") as f:
+        with open(os.path.join(out, "calibration.json"), "w", encoding="utf-8") as f:
             json.dump(cal, f, indent=2)
 
         plan = FixedPlan(post_to(srv.url))
         n_rows = 0
         name = "goldens-%s" % device_class(a.device)
-        with open(os.path.join(out, name + ".meta.json"), "w") as f:
+        with open(os.path.join(out, name + ".meta.json"), "w", encoding="utf-8") as f:
             json.dump({"server": server_version(a.server), "device": a.device,
                        "args": argv, "gguf_sha256": sha, "reference": "ollaya_convert.families.%s.ref + "
                        "llm_common.plan (the fixed evaluation plan)" % a.layout.replace("-", "_")}, f, indent=1)
-        with open(os.path.join(out, name + ".jsonl"), "w") as f:
+        with open(os.path.join(out, name + ".jsonl"), "w", encoding="utf-8") as f:
             for cid, state, qs in cases.edge_cases() + cases.typed_decisions(a.td) + [
                     (c, cases.wire(s), cases.wire(q)) for c, s, q in EXTRA]:
                 questions = engine_form(qs)

@@ -110,7 +110,7 @@ def export(slug, out_dir, run_dir, base_dir):
     shutil.copy(os.path.join(run_dir, "tokenizer.json"), os.path.join(out_dir, "tokenizer.json"))
 
     sp_ids = [tok.convert_tokens_to_ids(t) for t in SPECIAL]
-    cfg = json.load(open(os.path.join(run_dir, "adapter_config.json")))
+    cfg = json.load(open(os.path.join(run_dir, "adapter_config.json"), encoding="utf-8"))
     decision = {
         "engine": "onnx",
         "family": "kev",

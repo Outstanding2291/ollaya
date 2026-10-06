@@ -143,12 +143,12 @@ def main():
         if not decision:
             continue
         path = os.path.normpath(os.path.join(FIXTURES, name + "_prompts.jsonl"))
-        with open(path, "w") as f:
-            for r in build(json.load(open(decision))):
+        with open(path, "w", encoding="utf-8") as f:
+            for r in build(json.load(open(decision, encoding="utf-8"))):
                 f.write(json.dumps(r, ensure_ascii=False) + "\n")
         print(path, "written")
-        with open(os.path.join(FIXTURES, name + "_decision.json"), "w") as f:
-            json.dump(json.load(open(decision)), f, ensure_ascii=False, indent=1)
+        with open(os.path.join(FIXTURES, name + "_decision.json"), "w", encoding="utf-8") as f:
+            json.dump(json.load(open(decision, encoding="utf-8")), f, ensure_ascii=False, indent=1)
 
 
 if __name__ == "__main__":

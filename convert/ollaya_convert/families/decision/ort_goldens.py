@@ -42,8 +42,8 @@ def main():
     a = ap.parse_args()
     import onnxruntime as ort
 
-    decision = json.load(open(os.path.join(a.model_dir, "decision.json")))
-    T = json.load(open(os.path.join(a.model_dir, "calibration.json")))["temperature"]
+    decision = json.load(open(os.path.join(a.model_dir, "decision.json"), encoding="utf-8"))
+    T = json.load(open(os.path.join(a.model_dir, "calibration.json"), encoding="utf-8"))["temperature"]
     temp = {"choice": T[0], "score": T[1], "noul": T[2]}
     so = ort.SessionOptions()
     so.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
@@ -59,7 +59,7 @@ def main():
           flush=True)
     logit_max, prob_max, disagree, n_q, t_run = 0.0, 0.0, 0, 0, 0.0
     worst = []
-    for line in open(a.goldens):
+    for line in open(a.goldens, encoding="utf-8"):
         rec = json.loads(line)
         if rec["error"]:
             continue
@@ -90,7 +90,7 @@ def main():
                "worst": sorted(worst, reverse=True)[:5], "pass": logit_max <= LOGIT_TOL and disagree == 0}
     print(json.dumps(summary, indent=1))
     if a.report:
-        with open(a.report, "w") as f:
+        with open(a.report, "w", encoding="utf-8") as f:
             json.dump(summary, f, indent=1)
 
 

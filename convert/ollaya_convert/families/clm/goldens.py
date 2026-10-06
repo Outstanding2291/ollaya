@@ -54,7 +54,7 @@ def main():
     r = ref.Reference(a.base, a.head, device=a.device)
     path = a.out or os.path.join(os.path.dirname(os.path.abspath(a.model_dir)), "goldens-clm-8b.jsonl")
     n = 0
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         for cid, state, questions in cases.all_cases(a.td_limit):
             try:
                 rec = record(r, cid, state, questions)

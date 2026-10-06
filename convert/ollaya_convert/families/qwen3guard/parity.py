@@ -60,7 +60,7 @@ def main():
 
         a.root = snapshot_download(ref.REPO, revision=ref.REVISION)
     htok, m = ref.load(a.root, device=a.device)
-    decision = json.load(open(os.path.join(a.model_dir, "decision.json")))
+    decision = json.load(open(os.path.join(a.model_dir, "decision.json"), encoding="utf-8"))
     tok = tokenizers.Tokenizer.from_file(os.path.join(a.model_dir, "tokenizer.json"))
     sess = session(os.path.join(a.model_dir, "model.onnx"), a.threads)
     cand = decision["candidates"]["safety"]["ids"] + decision["candidates"]["category"]["ids"]
@@ -78,7 +78,7 @@ def main():
     st = defaultdict(list)
     mism = n = agree = 0
     out_path = os.path.join(os.path.dirname(os.path.abspath(a.model_dir)), "goldens-qwen3guard-gen-0.6b.jsonl")
-    with open(out_path, "w") as f:
+    with open(out_path, "w", encoding="utf-8") as f:
         for cid, state in states:
             up = ref.rows(htok, state)
             rows = port_rows(tok, decision, state)
@@ -107,7 +107,7 @@ def main():
                "stats": {k: {"max": float(np.max(v)), "mean": float(np.mean(v))} for k, v in sorted(st.items())},
                "goldens": out_path}
     print(json.dumps(summary, indent=1))
-    with open(os.path.join(a.model_dir, "parity.json"), "w") as f:
+    with open(os.path.join(a.model_dir, "parity.json"), "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=1)
 
 

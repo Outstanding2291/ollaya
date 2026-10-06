@@ -59,12 +59,12 @@ def main():
 
     run, base = (a.run, a.base) if a.run and a.base else ref.snapshot(a.model)
     ck, tok, m = ref.load(run, base, device=a.device, merge=True)
-    decision = json.load(open(os.path.join(a.model_dir, "decision.json")))
-    T = json.load(open(os.path.join(a.model_dir, "calibration.json")))["temperature"][0]
+    decision = json.load(open(os.path.join(a.model_dir, "decision.json"), encoding="utf-8"))
+    T = json.load(open(os.path.join(a.model_dir, "calibration.json"), encoding="utf-8"))["temperature"][0]
     lay = KevLayout(tokenizers.Tokenizer.from_file(os.path.join(a.model_dir, "tokenizer.json")), decision)
     path = a.out or os.path.join(os.path.dirname(os.path.abspath(a.model_dir)), "goldens-%s.jsonl" % a.model)
     n = 0
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         for cid, state, questions in cases.all_cases(a.td_limit):
             try:
                 rec = record(ck, tok, m, lay, T, cid, state, questions)

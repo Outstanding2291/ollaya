@@ -64,7 +64,7 @@ def load(path, device="cpu"):
     # upstream passes device_map={"": device}, which needs accelerate; loading, then moving, is the same model.
     backbone = Qwen3_5ForConditionalGeneration.from_pretrained(path, dtype=torch.float32).to(device)
     backbone.config.use_cache = False
-    head = jsm.JointSchemaHead(**json.load(open(os.path.join(path, "joint_head_config.json"))))
+    head = jsm.JointSchemaHead(**json.load(open(os.path.join(path, "joint_head_config.json"), encoding="utf-8")))
     head.load_state_dict(load_file(os.path.join(path, HEAD)), strict=True)
     head = head.to(device=device, dtype=torch.float32)
     return jsm.ClefModel(backbone, head).eval(), AutoTokenizer.from_pretrained(path)

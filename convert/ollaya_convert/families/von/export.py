@@ -96,7 +96,7 @@ def export(out_dir: str) -> str:
     from huggingface_hub import hf_hub_download
     shutil.copy(hf_hub_download(ref.REPO, "tokenizer.json", revision=ref.REVISION),
                 os.path.join(out_dir, "tokenizer.json"))
-    with open(hf_hub_download(ref.REPO, "marker_calibration.json", revision=ref.REVISION)) as f:
+    with open(hf_hub_download(ref.REPO, "marker_calibration.json", revision=ref.REVISION), encoding="utf-8") as f:
         mcal = json.load(f)
 
     decision = {
@@ -136,9 +136,9 @@ def export(out_dir: str) -> str:
             **mcal["calibration_map"],
         },
     }
-    with open(os.path.join(out_dir, "decision.json"), "w") as f:
+    with open(os.path.join(out_dir, "decision.json"), "w", encoding="utf-8") as f:
         json.dump(decision, f, indent=2, ensure_ascii=False)
-    with open(os.path.join(out_dir, "calibration.json"), "w") as f:
+    with open(os.path.join(out_dir, "calibration.json"), "w", encoding="utf-8") as f:
         json.dump(calibration, f, indent=2)
     return path
 

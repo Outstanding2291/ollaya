@@ -34,8 +34,8 @@ def main():
     ap.add_argument("--limit", type=int, default=0, help="typed-decisions rows (0: all 400)")
     a = ap.parse_args()
 
-    decision = json.load(open(os.path.join(a.model_dir, "decision.json")))
-    cal = json.load(open(os.path.join(a.model_dir, "calibration.json")))
+    decision = json.load(open(os.path.join(a.model_dir, "decision.json"), encoding="utf-8"))
+    cal = json.load(open(os.path.join(a.model_dir, "calibration.json"), encoding="utf-8"))
     llama = decision["llama"]
     dev = None if a.device == "cpu" else a.device
     srv = LlamaServer.start(a.server, a.gguf, port=a.port,
@@ -64,7 +64,7 @@ def main():
                   "shipped_temperatures": shipped, "shipped": quality.metrics(items, shipped),
                   **quality.cross_fit(items), "seconds": round(time.time() - t0, 1)}
         quality.dump(items, os.path.join(a.model_dir, "typed-decisions-logits.jsonl"))
-        with open(os.path.join(a.model_dir, "typed-decisions.json"), "w") as f:
+        with open(os.path.join(a.model_dir, "typed-decisions.json"), "w", encoding="utf-8") as f:
             json.dump(report, f, indent=1)
         print(json.dumps({"acc": report["shipped"]["all"]["acc"], "ece_shipped": report["shipped"]["all"]["ece"],
                           "ece_T1": report["raw_T1"]["all"]["ece"], "n": report["questions"]}))

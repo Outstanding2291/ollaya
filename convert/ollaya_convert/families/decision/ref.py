@@ -72,7 +72,7 @@ def _module(path: str, name: str):
 def temperatures(root: str, slug: str) -> dict:
     """The released temperature per question type."""
     fname, key = MODELS[slug]["temperature"]
-    cfg = json.load(open(os.path.join(root, fname)))
+    cfg = json.load(open(os.path.join(root, fname), encoding="utf-8"))
     if key is None:
         t = float(cfg["temperature"])
         return {"choice": t, "noul": t, "score": t}
@@ -81,7 +81,7 @@ def temperatures(root: str, slug: str) -> dict:
 
 def choice_null_description(root: str, slug: str) -> str:
     """How the adapter renders a null choice description: "key" (Nox 1.3.2) or "null"."""
-    api = open(os.path.join(root, MODELS[slug]["api"])).read()
+    api = open(os.path.join(root, MODELS[slug]["api"]), encoding="utf-8").read()
     return "key" if "'description':key if value is None else value" in api else "null"
 
 

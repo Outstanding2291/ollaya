@@ -47,7 +47,7 @@ def main():
     ap.add_argument("--port", type=int, default=8096)
     a = ap.parse_args()
 
-    decision = json.load(open(os.path.join(a.model_dir, "decision.json")))
+    decision = json.load(open(os.path.join(a.model_dir, "decision.json"), encoding="utf-8"))
     llama = decision["llama"]
     dev = None if a.device == "cpu" else a.device
     argv = server_args(llama["n_ctx"], llama.get("swa_full", False), dev)
@@ -61,14 +61,14 @@ def main():
         version = subprocess.run([a.server, "--version"], capture_output=True, text=True, timeout=60)
         version = " ".join(l.strip() for l in (version.stdout + version.stderr).splitlines()
                            if l.strip().startswith(("version", "built")))
-        with open(os.path.join(a.model_dir, name + ".meta.json"), "w") as f:
+        with open(os.path.join(a.model_dir, name + ".meta.json"), "w", encoding="utf-8") as f:
             json.dump({"server": version, "device": a.device, "args": argv,
                        "gguf_sha256": decision["gguf"]["sha256"], "prompts_from": a.source,
                        "reference": "the prompts of %s, evaluated through llm_common.plan" % a.source}, f, indent=1)
         plan = FixedPlan(post_to(srv.url))
         n = 0
-        with open(os.path.join(a.model_dir, a.source)) as src, \
-                open(os.path.join(a.model_dir, name + ".jsonl"), "w") as out:
+        with open(os.path.join(a.model_dir, a.source), encoding="utf-8") as src, \
+                open(os.path.join(a.model_dir, name + ".jsonl"), "w", encoding="utf-8") as out:
             for line in src:
                 rec = json.loads(line)
                 for row in rec.get("rows", []):

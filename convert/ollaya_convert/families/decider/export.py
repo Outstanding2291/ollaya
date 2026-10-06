@@ -65,7 +65,7 @@ def export(slug: str, out_dir: str, root: str):
     sys.path.insert(0, root)
     from decider.prompt import NARROW, label_table
 
-    cfg = json.load(open(os.path.join(root, "decider_config.json")))
+    cfg = json.load(open(os.path.join(root, "decider_config.json"), encoding="utf-8"))
     lm = AutoModelForCausalLM.from_pretrained(root, dtype=torch.float32).eval()
     assert lm.lm_head.weight.data_ptr() == lm.model.embed_tokens.weight.data_ptr(), "expected tied embeddings"
     from transformers import AutoTokenizer

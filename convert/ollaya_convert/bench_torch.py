@@ -51,7 +51,7 @@ def main():
         torch.backends.cudnn.allow_tf32 = False
         agent.dtype = torch.float32  # system_one autocasts to agent.dtype; fp32 autocast is a no-op
     full = []
-    with open(a.goldens) as f:
+    with open(a.goldens, encoding="utf-8") as f:
         for line in f:
             rec = json.loads(line)
             full.append((rec["state"], rec["questions"]))

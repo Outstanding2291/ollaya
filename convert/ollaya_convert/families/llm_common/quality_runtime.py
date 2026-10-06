@@ -34,14 +34,14 @@ def main():
 
     rows = cases.typed_decisions_gold(a.limit)
     if a.cmd == "requests":
-        with open(a.out, "w") as f:
+        with open(a.out, "w", encoding="utf-8") as f:
             for (cid, state, questions), _ in rows:
                 f.write(json.dumps({"id": cid, "state": state, "questions": questions}, ensure_ascii=False) + "\n")
         print("wrote %d requests to %s" % (len(rows), a.out))
         return
 
     got = {}
-    for line in open(a.logits):
+    for line in open(a.logits, encoding="utf-8"):
         x = json.loads(line)
         got[x["id"]] = x.get("logits")
     missing = [cid for (cid, _, _), _ in rows if got.get(cid) is None]
@@ -49,12 +49,12 @@ def main():
         raise SystemExit("%d requests have no logits (rejected or not run), e.g. %s" % (len(missing), missing[:3]))
     order = iter([cid for (cid, _, _), _ in rows])   # collect calls the scorer once per row, in order
     items = quality.collect(lambda state, questions: got[next(order)], rows)
-    t = json.load(open(os.path.join(a.model_dir, "calibration.json")))["temperature"]
+    t = json.load(open(os.path.join(a.model_dir, "calibration.json"), encoding="utf-8"))["temperature"]
     shipped = {"choice": t[0], "score": t[1], "noul": t[2]}
     report = {"rows": len(rows), "questions": len(items), "device": a.device, "engine": "ollaya-runner",
               "shipped_temperatures": shipped, "shipped": quality.metrics(items, shipped), **quality.cross_fit(items)}
     quality.dump(items, os.path.join(a.model_dir, "typed-decisions-logits.jsonl"))
-    with open(os.path.join(a.model_dir, "typed-decisions.json"), "w") as f:
+    with open(os.path.join(a.model_dir, "typed-decisions.json"), "w", encoding="utf-8") as f:
         json.dump(report, f, indent=1)
     s = report["shipped"]
     print(json.dumps({"acc": s["all"]["acc"], "by_type": {k: s[k]["acc"] for k in quality.TYPES if k in s},

@@ -56,8 +56,8 @@ def main():
 
     root = a.root or ref.snapshot(a.model)
     d = ref.load(root, device=a.device)
-    decision = json.load(open(os.path.join(a.model_dir, "decision.json")))
-    calib = json.load(open(os.path.join(a.model_dir, "calibration.json")))["temperature"]
+    decision = json.load(open(os.path.join(a.model_dir, "decision.json"), encoding="utf-8"))
+    calib = json.load(open(os.path.join(a.model_dir, "calibration.json"), encoding="utf-8"))["temperature"]
     tok = tokenizers.Tokenizer.from_file(os.path.join(a.model_dir, "tokenizer.json"))
     lay = DeciderLayout(tok, decision)
     sess = session(os.path.join(a.model_dir, "model.onnx"), a.threads)
@@ -145,7 +145,7 @@ def main():
     }
     print(json.dumps(summary, indent=1))
     if a.report:
-        with open(a.report, "w") as f:
+        with open(a.report, "w", encoding="utf-8") as f:
             json.dump(summary, f, indent=1)
 
 

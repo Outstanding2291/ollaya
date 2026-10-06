@@ -199,7 +199,7 @@ def export(slug, out_dir):
         "unused_checkpoint_tensors": report["unused"],
         "export_check": {"questions": n, "max_abs_diff": worst}}
     # decision.json is written with ASCII escapes: the noul template's em dash stays `\u2014` in the file.
-    with open(os.path.join(out_dir, "decision.json"), "w") as f:
+    with open(os.path.join(out_dir, "decision.json"), "w", encoding="utf-8") as f:
         json.dump(decision, f, indent=2, ensure_ascii=True)
         f.write("\n")
     ox.write_json(os.path.join(out_dir, "calibration.json"), calibration)

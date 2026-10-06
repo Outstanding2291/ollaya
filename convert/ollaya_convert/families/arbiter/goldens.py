@@ -51,8 +51,8 @@ def main():
     run, base = (a.run, a.base) if a.run and a.base else ref.snapshot("arbiter-4b")
     tok = ref.tokenizer(base)
     model, head = ref.load(run, base, device=a.device, merge=True)
-    decision = json.load(open(os.path.join(a.model_dir, "decision.json")))
-    T = json.load(open(os.path.join(a.model_dir, "calibration.json")))["temperature"][0]
+    decision = json.load(open(os.path.join(a.model_dir, "decision.json"), encoding="utf-8"))
+    T = json.load(open(os.path.join(a.model_dir, "calibration.json"), encoding="utf-8"))["temperature"][0]
     lay = ArbiterLayout(tokenizers.Tokenizer.from_file(os.path.join(a.model_dir, "tokenizer.json")), decision)
     path = os.path.join(os.path.dirname(os.path.abspath(a.model_dir)), "goldens-arbiter-4b.jsonl")
     done = set()

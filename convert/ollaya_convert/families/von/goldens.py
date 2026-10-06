@@ -65,7 +65,7 @@ def main():
     exact = ref.Exact(backend, a.device, a.long_device) if a.precision == "fp64" else None
     n = 0
     os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
-    with open(a.out, "w") as f:
+    with open(a.out, "w", encoding="utf-8") as f:
         for cid, state, questions in list(cases.all_cases(0 if a.all else 20)) + extra_cases():
             state, questions = wire(state), wire(questions)
             enc = ref.encode(tok, state, questions)

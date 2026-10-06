@@ -102,7 +102,7 @@ def export(slug, out_dir, root, empty=False):
     else:
         backbone, head = d.model.backbone, d.model.head
     graph = DecisionGraph(backbone, head).eval()
-    cfg = json.load(open(os.path.join(root, "decision_config.json")))
+    cfg = json.load(open(os.path.join(root, "decision_config.json"), encoding="utf-8"))
     assert cfg["prompt_version"] == PROMPT_VERSION and cfg["head_dim"] == 256, cfg
 
     # Two rows padded to 256 tokens, three candidates each: every dynamic axis > 1. The rows come from

@@ -28,7 +28,7 @@ def main():
     torch.backends.cuda.matmul.allow_tf32 = False
     m = ref.load(a.device)
     n = 0
-    with open(a.out, "w") as f:
+    with open(a.out, "w", encoding="utf-8") as f:
         for cid, state, questions in cases.all_cases(0 if a.all else 20):
             state, questions = json.loads(json.dumps(state)), json.loads(json.dumps(questions))
             enc = ref.encode(m, state, questions)

@@ -120,7 +120,7 @@ def export(out_dir, adapter_dir, base_dir):
     ox.cleanup(tmp)
     shutil.copy(os.path.join(adapter_dir, "tokenizer.json"), os.path.join(out_dir, "tokenizer.json"))
 
-    cfg = json.load(open(os.path.join(adapter_dir, "adapter_config.json")))
+    cfg = json.load(open(os.path.join(adapter_dir, "adapter_config.json"), encoding="utf-8"))
     temperature = float(temperature_config["temperature"])
     decision = {
         "engine": "onnx",

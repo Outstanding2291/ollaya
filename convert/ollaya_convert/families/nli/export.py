@@ -79,9 +79,9 @@ def export(name: str, out_dir: str) -> str:
         "outputs": OUTPUT_NAMES,
         "opset": OPSET,
     }
-    with open(os.path.join(out_dir, "decision.json"), "w") as f:
+    with open(os.path.join(out_dir, "decision.json"), "w", encoding="utf-8") as f:
         json.dump(decision, f, indent=2, ensure_ascii=False)
-    with open(os.path.join(out_dir, "calibration.json"), "w") as f:
+    with open(os.path.join(out_dir, "calibration.json"), "w", encoding="utf-8") as f:
         json.dump({"temperature": [1.0, 1.0, 1.0], "temperature_by_options": {}}, f, indent=2)
     return path
 

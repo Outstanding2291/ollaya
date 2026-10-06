@@ -37,8 +37,8 @@ def main():
     ap.add_argument("--td-limit", type=int, default=400)
     a = ap.parse_args()
 
-    decision = json.load(open(os.path.join(a.model_dir, "decision.json")))
-    calib = json.load(open(os.path.join(a.model_dir, "calibration.json")))["temperature"]
+    decision = json.load(open(os.path.join(a.model_dir, "decision.json"), encoding="utf-8"))
+    calib = json.load(open(os.path.join(a.model_dir, "calibration.json"), encoding="utf-8"))["temperature"]
     tok = tokenizers.Tokenizer.from_file(os.path.join(a.model_dir, "tokenizer.json"))
     if a.family == "decider":
         from ..decider import ref
@@ -96,7 +96,7 @@ def main():
     report = {"model": a.model, "rows": len(rows), "questions": sum(len(c[2]) for c, _ in rows), "answered": len(items),
               "as_shipped": {"temperatures": shipped, "metrics": quality.metrics(items, shipped)}}
     report.update(quality.cross_fit(items))
-    with open(os.path.join(a.model_dir, "typed-decisions-quality.json"), "w") as f:
+    with open(os.path.join(a.model_dir, "typed-decisions-quality.json"), "w", encoding="utf-8") as f:
         json.dump(report, f, indent=1)
     print(json.dumps(report["as_shipped"], indent=1))
     print(json.dumps({k: report[k]["metrics"]["all"] for k in ("fit_even_eval_odd", "fit_odd_eval_even")}, indent=1))

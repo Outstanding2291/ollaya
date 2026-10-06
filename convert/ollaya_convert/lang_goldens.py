@@ -710,7 +710,7 @@ def write_tables(path: str, ranges: List[Tuple[int, int, int]]) -> None:
     ]
     out += rows(["(0x%04X, 0x%04X, %s)" % (lo, hi, names[c]) for lo, hi, c in ranges])
     out += ["];", ""]
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         f.write("\n".join(out))
 
 
@@ -753,17 +753,17 @@ def main() -> None:
 
     ranges = class_ranges()
     write_tables(os.path.join(CRATE, "src", "tables.rs"), ranges)
-    with open(os.path.join(fixtures, "chars.json"), "w") as f:
+    with open(os.path.join(fixtures, "chars.json"), "w", encoding="utf-8") as f:
         json.dump(chars_fixture(ranges), f, separators=(",", ":"))
 
-    with open(os.path.join(fixtures, "lang_code.jsonl"), "w") as f:
+    with open(os.path.join(fixtures, "lang_code.jsonl"), "w", encoding="utf-8") as f:
         for code in LANG_CODES:
             f.write(json.dumps({"code": code, "english": _english_from_code(code)}, ensure_ascii=False) + "\n")
 
     default, multilingual = Router(), Router(default="multilingual")
     path = os.path.join(fixtures, "route.jsonl")
     seen, stats = set(), Counter()
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         for sid, raw in all_states():
             assert sid not in seen, sid
             seen.add(sid)

@@ -46,8 +46,8 @@ def main():
     run, base = (a.run, a.base) if a.run and a.base else ref.snapshot("arbiter-4b")
     tok = ref.tokenizer(base)
     model, head = ref.load(run, base, device=a.device, merge=True)
-    decision = json.load(open(os.path.join(a.model_dir, "decision.json")))
-    T = json.load(open(os.path.join(a.model_dir, "calibration.json")))["temperature"][0]
+    decision = json.load(open(os.path.join(a.model_dir, "decision.json"), encoding="utf-8"))
+    T = json.load(open(os.path.join(a.model_dir, "calibration.json"), encoding="utf-8"))["temperature"][0]
     lay = ArbiterLayout(tokenizers.Tokenizer.from_file(os.path.join(a.model_dir, "tokenizer.json")), decision)
     sess = session(os.path.join(a.model_dir, "model.onnx"), a.threads)
     pad = decision["special_tokens"]["pad"]
@@ -113,7 +113,7 @@ def main():
     }
     print(json.dumps(summary, indent=1))
     if a.report:
-        with open(a.report, "w") as f:
+        with open(a.report, "w", encoding="utf-8") as f:
             json.dump(summary, f, indent=1)
 
 

@@ -53,7 +53,7 @@ def main():
     os.makedirs(a.out, exist_ok=True)
     path = os.path.join(a.out, "laya-%s.jsonl" % a.checkpoint)
     n = 0
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         for cid, state, questions in cases.all_cases(0 if a.all else 20):
             enc = laya_ref.encode(agent, state, questions)
             logits, act = laya_ref.forward(agent, enc["batch"], exact)

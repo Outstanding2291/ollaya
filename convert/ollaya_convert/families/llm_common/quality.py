@@ -104,7 +104,7 @@ def cross_fit(items: List[dict]):
 def dump(items: List[dict], path: str):
     import json
 
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         for x in items:
             f.write(json.dumps({"id": x["id"], "qid": x["qid"], "type": x["type"], "row": x["row"],
                                 "z": [float(v) for v in x["z"]], "gold": [float(v) for v in x["gold"]],
@@ -115,7 +115,7 @@ def load(path: str) -> List[dict]:
     import json
 
     out = []
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         for line in f:
             x = json.loads(line)
             x["z"], x["gold"] = np.array(x["z"]), np.array(x["gold"])

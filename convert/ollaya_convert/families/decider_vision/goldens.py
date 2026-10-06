@@ -122,7 +122,7 @@ def main():
     m = ref.load(a.root or ref.snapshot(), a.device)
     path = os.path.join(os.path.dirname(os.path.abspath(a.model_dir)), "goldens-decider-2b-vision.jsonl")
     n = 0
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         def emit(cid, image, state, questions):
             nonlocal n
             try:

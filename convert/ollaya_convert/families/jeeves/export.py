@@ -54,7 +54,7 @@ def text_model(model_dir, qwen_dir):
     from safetensors.torch import load_file
     from transformers import Qwen3_5TextConfig, Qwen3_5TextModel
 
-    cfg = json.load(open(os.path.join(qwen_dir, "config.json")))["text_config"]
+    cfg = json.load(open(os.path.join(qwen_dir, "config.json"), encoding="utf-8"))["text_config"]
     config = Qwen3_5TextConfig(**cfg)
     # Built on the meta device and filled by assignment, so the fp32 weights (36 GB) exist once.
     with torch.device("meta"):
@@ -87,7 +87,7 @@ def export(out_dir, model_dir, qwen_dir, tokenizer_json):
     ref._src()
     from model.head import PointerHead
 
-    meta = json.load(open(os.path.join(model_dir, "export.json")))
+    meta = json.load(open(os.path.join(model_dir, "export.json"), encoding="utf-8"))
     head = PointerHead(4096, meta["head_dim"]).float()
     head.load_state_dict(torch.load(os.path.join(model_dir, "head.pt"), map_location="cpu"))
     head.temperature = 1.0

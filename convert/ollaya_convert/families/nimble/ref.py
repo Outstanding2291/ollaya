@@ -63,7 +63,7 @@ def upstream(adapter_dir):
 
 def contract(adapter_dir):
     """(schema_config, serving_config, temperature_config) as shipped."""
-    read = lambda name: json.load(open(os.path.join(adapter_dir, name)))  # noqa: E731
+    read = lambda name: json.load(open(os.path.join(adapter_dir, name), encoding="utf-8"))  # noqa: E731
     return read("schema_config.json"), read("serving_config.json"), read("temperature_config.json")
 
 

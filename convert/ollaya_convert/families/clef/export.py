@@ -129,7 +129,8 @@ def text_model(model_dir):
     from safetensors.torch import load_file
     from transformers import Qwen3_5TextConfig, Qwen3_5TextModel
 
-    config = Qwen3_5TextConfig(**json.load(open(os.path.join(model_dir, "config.json")))["text_config"])
+    with open(os.path.join(model_dir, "config.json"), encoding="utf-8") as f:
+        config = Qwen3_5TextConfig(**json.load(f)["text_config"])
     # Built on the meta device and filled by assignment, so the fp32 weights (33 GB) exist once.
     with torch.device("meta"):
         m = Qwen3_5TextModel(config)
@@ -152,7 +153,7 @@ def text_model(model_dir):
 def load_head(jsm, model_dir):
     from safetensors.torch import load_file
 
-    head = jsm.JointSchemaHead(**json.load(open(os.path.join(model_dir, "joint_head_config.json"))))
+    head = jsm.JointSchemaHead(**json.load(open(os.path.join(model_dir, "joint_head_config.json"), encoding="utf-8")))
     head.load_state_dict(load_file(os.path.join(model_dir, ref.HEAD)), strict=True)
     return head.float().eval()
 

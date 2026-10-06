@@ -295,8 +295,8 @@ def main():
     ap.add_argument("--weights", required=True, help="the author's weights file (safetensors or torch zip)")
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
-    config = json.load(open(a.config))
-    agent = json.load(open(a.agent_config)) if a.agent_config else None
+    config = json.load(open(a.config, encoding="utf-8"))
+    agent = json.load(open(a.agent_config, encoding="utf-8")) if a.agent_config else None
     arch = build(a.family, config, a.weights, agent)
     with open(a.out, "wb") as f:
         f.write(dumps(arch))

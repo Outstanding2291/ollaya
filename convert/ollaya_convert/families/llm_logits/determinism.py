@@ -80,7 +80,7 @@ def main():
                       "argmax_flips": flips[k]}
         print(json.dumps(res, indent=1))
         if a.out:
-            with open(a.out, "w") as f:
+            with open(a.out, "w", encoding="utf-8") as f:
                 json.dump(res, f, indent=1)
     finally:
         srv.stop()

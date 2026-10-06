@@ -120,22 +120,22 @@ def main():
                      "url": "https://huggingface.co/%s/resolve/%s/%s" % (a.repo, a.revision, a.file)},
             "llama": {"n_ctx": a.n_ctx, "swa_full": swa, "plan": "cold", "build": LLAMA_BUILD},
         }
-        with open(os.path.join(out, "decision.json"), "w") as f:
+        with open(os.path.join(out, "decision.json"), "w", encoding="utf-8") as f:
             json.dump(decision, f, indent=1, ensure_ascii=False)
-        with open(os.path.join(out, "calibration.json"), "w") as f:
+        with open(os.path.join(out, "calibration.json"), "w", encoding="utf-8") as f:
             json.dump({"temperature": [1.0, 1.0, 1.0], "temperature_by_options": {},
                        "source": "uncalibrated (temperature 1.0): snap1-2b's card reports raw probabilities"}, f, indent=2)
 
         plan = FixedPlan(post_to(srv.url))
         name = "goldens-%s" % device_class(a.device)
-        with open(os.path.join(out, name + ".meta.json"), "w") as f:
+        with open(os.path.join(out, name + ".meta.json"), "w", encoding="utf-8") as f:
             json.dump({"server": server_version(a.server), "device": a.device, "args": argv, "gguf_sha256": sha,
                        "reference": "snap export-prompts (snap %s, prompt v%d) on the shared request set, "
                        "evaluated with llm_common.plan (the fixed evaluation plan)"
                        % (UPSTREAM["tag"], UPSTREAM["prompt_version"])}, f, indent=1)
         n_rows = left_out = 0
         seen = set()
-        with open(os.path.join(out, name + ".jsonl"), "w") as f:
+        with open(os.path.join(out, name + ".jsonl"), "w", encoding="utf-8") as f:
             for r in exported:
                 rid, _, qid = r["id"].partition("#")
                 qid = qid.split("#")[0]

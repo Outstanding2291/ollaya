@@ -57,8 +57,8 @@ def main():
     a = ap.parse_args()
 
     d = ref.load(a.root or ref.snapshot(a.model), a.model, device=a.device)
-    decision = json.load(open(os.path.join(a.model_dir, "decision.json")))
-    T = json.load(open(os.path.join(a.model_dir, "calibration.json")))["temperature"]
+    decision = json.load(open(os.path.join(a.model_dir, "decision.json"), encoding="utf-8"))
+    T = json.load(open(os.path.join(a.model_dir, "calibration.json"), encoding="utf-8"))["temperature"]
     temp = {"choice": T[0], "score": T[1], "noul": T[2]}
     assert all(abs(temp[k] - d.T[k]) < 1e-12 for k in temp), (temp, d.T)
     lay = DecisionLayout(tokenizers.Tokenizer.from_file(os.path.join(a.model_dir, "tokenizer.json")), decision)
@@ -144,7 +144,7 @@ def main():
     }
     print(json.dumps(summary, indent=1))
     if a.report:
-        with open(a.report, "w") as f:
+        with open(a.report, "w", encoding="utf-8") as f:
             json.dump(summary, f, indent=1)
 
 
