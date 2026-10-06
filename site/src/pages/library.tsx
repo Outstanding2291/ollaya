@@ -113,7 +113,7 @@ function ModelHeader({ model, tag, crumb }: { model: Model; tag?: Tag; crumb?: s
 function Usage({ refName, model, tag }: { refName: string; model: Model; tag: Tag | undefined }) {
   const tabs = tag?.capabilities.includes('vision')
     ? visionUsageTabs(refName)
-    : usageTabs(refName, model.exampleState ?? undefined, tag?.builtinQuestions ?? false)
+    : usageTabs(refName, model.exampleState ?? undefined, tag?.builtinQuestions ?? false, model.noPresets)
   return (
     <section class="mt-8" aria-label="Usage">
       <CodeTabs id="usage" label="Usage examples" tabs={tabs} />

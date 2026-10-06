@@ -6,6 +6,7 @@
 //! same API through this crate.
 
 pub mod answer;
+pub mod arbiter;
 pub mod calibration;
 pub mod clef;
 pub mod clm;

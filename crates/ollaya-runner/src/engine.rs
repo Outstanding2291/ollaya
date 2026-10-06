@@ -99,6 +99,7 @@ pub const LAYOUTS: &[&str] = &[
     "jeeves-markers-v1",
     "clef-joint-v1",
     "decima-late-interaction-v1",
+    "arbiter-fixed-v1",
 ];
 
 /// The layout a `decision` layer declares.
@@ -158,6 +159,9 @@ pub fn load(
             files, device, threads,
         )?)),
         "decima-late-interaction-v1" => Ok(Box::new(crate::decima::DecimaModel::load_files(
+            files, device, threads,
+        )?)),
+        "arbiter-fixed-v1" => Ok(Box::new(crate::arbiter::ArbiterModel::load_files(
             files, device, threads,
         )?)),
         other => Err(Error::Model(format!(

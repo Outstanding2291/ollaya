@@ -9,7 +9,9 @@ match to ~1e-5), in the same metrics as the llm-logits demo, for a like-for-like
         --base BASE --head HEAD.pt
 
 Writes <model_dir>/typed-decisions-quality.json (as shipped = the model's calibration.json, plus the
-cross-fitted per-type temperatures) and typed-decisions-logits.jsonl.
+cross-fitted per-type temperatures) and typed-decisions-logits.jsonl. A question the model cannot answer (arbiter:
+a score with other than 6 levels, a choice over 16 options) has no logits and is left out of the metrics;
+"questions" and "answered" give the coverage.
 """
 from __future__ import annotations
 
@@ -24,7 +26,7 @@ from . import cases, quality
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("family", choices=["decider", "kev", "clm"])
+    ap.add_argument("family", choices=["decider", "kev", "clm", "arbiter"])
     ap.add_argument("model")
     ap.add_argument("model_dir")
     ap.add_argument("--root", default=None)
@@ -60,6 +62,23 @@ def main():
                 return {qid: lg for qid, lg in r.answer(state, questions)[1].items()}
             except ValueError:   # a text over the model's 2,048 tokens: no answer, as the runtime
                 return {}
+    elif a.family == "arbiter":
+        from ..arbiter import ref
+
+        run, base = (a.run, a.base) if a.run and a.base else ref.snapshot(a.model)
+        atok = ref.tokenizer(base)
+        model, head = ref.load(run, base, device=a.device, merge=True)
+
+        def scorer(state, questions):
+            out = {}
+            for qid, q in questions.items():   # one at a time: a request with one unanswerable question is a 422
+                try:
+                    rows, _ = ref.encode(atok, state, {qid: q})
+                except ref.RequestError:
+                    continue
+                z = ref.forward(model, head, rows)[0]
+                out[qid] = [z[i] for i in rows[0]["slots"]]
+            return out
     else:
         from ..kev import ref
 
@@ -74,8 +93,8 @@ def main():
     items = quality.collect(scorer, rows, progress=100)
     quality.dump(items, os.path.join(a.model_dir, "typed-decisions-logits.jsonl"))
     shipped = dict(zip(quality.TYPES, calib))
-    report = {"model": a.model, "rows": len(rows), "as_shipped": {"temperatures": shipped,
-                                                                   "metrics": quality.metrics(items, shipped)}}
+    report = {"model": a.model, "rows": len(rows), "questions": sum(len(c[2]) for c, _ in rows), "answered": len(items),
+              "as_shipped": {"temperatures": shipped, "metrics": quality.metrics(items, shipped)}}
     report.update(quality.cross_fit(items))
     with open(os.path.join(a.model_dir, "typed-decisions-quality.json"), "w") as f:
         json.dump(report, f, indent=1)

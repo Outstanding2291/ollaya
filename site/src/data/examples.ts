@@ -28,9 +28,10 @@ const indent = (text: string, pad: string) =>
 
 /**
  * CLI / cURL / Python / JavaScript snippets for a model reference such as "laya" or "laya:en".
- * A model with built-in questions (`builtin`) is asked about the state alone.
+ * A model with built-in questions (`builtin`) is asked about the state alone; a model that rejects the
+ * built-in presets (`noPresets`) gets the examples' own questions on the command line too.
  */
-export function usageTabs(ref: string, state: string = TRIAGE_STATE, builtin = false): CodeTab[] {
+export function usageTabs(ref: string, state: string = TRIAGE_STATE, builtin = false, noPresets = false): CodeTab[] {
   const body = builtin ? { model: ref, state } : { model: ref, state, questions: triageQuestions }
   const json2 = JSON.stringify(body, null, 2)
   const json4 = JSON.stringify(body, null, 4)
@@ -42,7 +43,11 @@ export function usageTabs(ref: string, state: string = TRIAGE_STATE, builtin = f
     {
       key: 'cli',
       label: 'CLI',
-      code: builtin ? `ollaya run ${ref} "${state}"` : `ollaya run ${ref} --preset triage "${state}"`,
+      code: builtin
+        ? `ollaya run ${ref} "${state}"`
+        : noPresets
+          ? `ollaya run ${ref} --questions '${JSON.stringify(triageQuestions)}' "${state}"`
+          : `ollaya run ${ref} --preset triage "${state}"`,
     },
     {
       key: 'curl',

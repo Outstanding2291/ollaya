@@ -3,6 +3,7 @@
 //! An engine turns a (state, questions) request into raw option logits. Calibration and answer
 //! rendering happen in `ollaya-decision`, so engines stay small and interchangeable.
 
+pub mod arbiter;
 pub mod clef;
 pub mod clm;
 pub mod decider;

@@ -28,6 +28,9 @@ interface ModelOverlay {
   rank?: number
   /** The state in the usage examples, when the default triage message does not suit the model. */
   exampleState?: string
+  /** The model rejects the built-in presets (every one has a question it cannot answer), so the CLI
+   * example passes the usage examples' own questions with `--questions` instead of `--preset triage`. */
+  noPresets?: boolean
   /**
    * Measured numbers for the default tag, shown on /search so models compare at a glance. Only
    * numbers published on the model's own page: typed-decisions accuracy (argmax against the
@@ -308,6 +311,20 @@ const overlays: Record<string, ModelOverlay> = {
       large: { summary: 'GLiClass instruct large v1.0 (DeBERTa-v3-large backbone), Apache-2.0.' },
     },
   },
+  arbiter: {
+    title: 'Arbiter',
+    description:
+      "Codekins' Arbiter (Zyot Lab): Gemma 3 4B IT with a LoRA and a fixed 24-slot head that reads every option at the end of one prompt per question. It answers yes/no questions, choices of up to 16 options and scores of exactly 6 levels.",
+    publisher: { name: 'Codekins · Zyot Lab', url: 'https://huggingface.co/hiteshluke' },
+    noPresets: true,
+    capabilities: ['decision', 'fine-tuned'],
+    keywords: ['arbiter', 'codekins', 'zyot', 'gemma', 'gemma 3', 'lora', 'llm', 'decision', 'classification', 'typesafe', 'jev', 'system one'],
+    rank: 19,
+    tags: {
+      latest: { summary: 'Same as arbiter:4b.' },
+      '4b': { summary: 'Arbiter v3.3 on Gemma 3 4B IT (weights kept BF16, about 8 GB): noul, up to 16 options, 6-level scores.' },
+    },
+  },
   decima: {
     stats: { tag: 'decima:base', accuracy: 0.495, latencyMs: 15.1 },
     title: 'Decima',
@@ -398,6 +415,7 @@ export interface Model {
   keywords: string[]
   /** The state in the usage examples, if not the default triage message. */
   exampleState: string | null
+  noPresets: boolean
   stats: ModelStats | null
   tags: Tag[]
 }
@@ -510,6 +528,7 @@ function buildModel(m: RegistryModel): Model {
     rank: overlay?.rank ?? 100,
     keywords: overlay?.keywords ?? [],
     exampleState: overlay?.exampleState ?? null,
+    noPresets: overlay?.noPresets ?? false,
     stats: overlay?.stats ?? null,
     tags,
   }
