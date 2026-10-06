@@ -152,7 +152,9 @@ jobs:
             name=ollaya-$PLATFORM-$pack
             key=$(scripts/cuda-pack-key.sh "$PLATFORM" "$pack")
             old=
-            if [ -n "$prev" ] && gh release download "$prev" --repo "$GITHUB_REPOSITORY" \
+            # linux-arm64 always builds: there --cuda also puts the GPU runner into the base
+            # archive, and the job is not on the release's critical path.
+            if [ -n "$prev" ] && [ "$PLATFORM" != linux-arm64 ] && gh release download "$prev" --repo "$GITHUB_REPOSITORY" \
                 -p "$name.key" -O "$RUNNER_TEMP/$name.key" --clobber 2>/dev/null; then
               old=$(cat "$RUNNER_TEMP/$name.key")
             fi
