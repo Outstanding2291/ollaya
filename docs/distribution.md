@@ -207,7 +207,7 @@ sha256 (llama.cpp v0.5.0, build b11146):
 | `lib/ollaya/llama/` (linux-arm64) | the same set, arm64 CPU variants | `llama-b11146-bin-ubuntu-arm64.tar.gz` |
 | `lib/ollaya/cuda_v13/libggml-cuda.so` (linux-arm64) | the CUDA 13.4 backend | `llama-b11146-bin-ubuntu-cuda-13.4-arm64.tar.gz`, the same build (commit and ggml backend interface) |
 | `lib/ollaya/llama/` (darwin-arm64) | `libllama.0.dylib`, `libggml*.0.dylib` (Metal built in, shaders embedded, macOS 13.3 or newer) | `llama-b11146-bin-macos-arm64.tar.gz` |
-| `lib/ollaya/llama/` (windows-amd64) | `llama.dll`, `ggml.dll`, `ggml-base.dll`, the `ggml-cpu-*.dll` variants and `libomp.dll` | `llama-b11146-bin-win-cpu-x64.zip` |
+| `lib/ollaya/llama/` (windows-amd64) | `llama.dll`, `ggml.dll`, `ggml-base.dll`, `ggml-vulkan.dll`, the `ggml-cpu-*.dll` variants and `libomp.dll` | `llama-b11146-bin-win-vulkan-x64.zip` |
 
 - **Nothing else.** No `llama-server`, no tools, no symbolic links: each library is stored once,
   under the name the loader asks for.
@@ -215,6 +215,20 @@ sha256 (llama.cpp v0.5.0, build b11146):
   `<exe dir>/../lib/ollaya/llama`). ggml loads the best CPU variant for the machine. The CUDA backend
   is found next to a GPU runner's `argv[0]`, the CUDA pack, where it links the pack's `libcudart`,
   `libcublas` and `libcublasLt` through its `$ORIGIN` RUNPATH.
+- **Windows Vulkan.** `ggml-vulkan.dll` lives beside the CPU libraries and is loaded by llama.cpp's
+  backend discovery. With `OLLAYA_DEVICE=auto`, GGUF models use CUDA when its optional pack is
+  installed, else a discrete Vulkan GPU. An integrated GPU shares system memory and is not shown to
+  beat the CPU, so it takes an explicit `OLLAYA_DEVICE=vulkan:<n>`. If a GPU runner fails while it
+  loads, the model starts again on the CPU (#47). ONNX models still use CPU or CUDA; DirectML is not
+  registered.
+- **Vulkan parity**, per device as for every backend (docs/decisions/0003-llama-cpp-runtime.md, point
+  7): Ollaya's runner against stock `llama-server` b11146 on the same Vulkan device. On an Intel Arc
+  140T: `winnow:e4b` 505/505 decisions, option logits within 1.1e-5; `jevk5` 593/593, within 9.5e-6
+  ([measurements](measurements/intel-arc-140t-parity.md)). On an RTX 4090 through Vulkan:
+  `winnow:e4b` 505/505 within 1.1e-5, `jeb:9b` 494/494 within 7.6e-6, `cygnet:12b` 502/502 within
+  7.7e-6; five questions take 149, 250 and 862 ms against 103, 128 and 213 ms on CUDA. Vulkan and
+  CUDA differ from each other as the CPU and CUDA do (`winnow:e4b`: 501 of 505 decisions the same on
+  the RTX 4090, option log-probabilities up to 0.32 apart, against 0.28 for the CPU).
 - **Build check.** The runner refuses a llama.cpp whose version or default parameter structs
   differ from the ones `crates/ollaya-runner/src/llama/ffi.rs` was written for.
 - **`ollaya llama-devices`** (hidden) loads the libraries the way a runner does and prints the

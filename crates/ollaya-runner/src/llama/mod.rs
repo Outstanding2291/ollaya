@@ -274,6 +274,7 @@ struct Gpu {
     handle: ffi::Device,
     name: String,
     description: String,
+    kind: i32,
     free_mib: usize,
 }
 
@@ -364,11 +365,25 @@ fn gpus(api: &Api) -> Vec<Gpu> {
                     handle: d,
                     name: ffi::cstr((api.ggml_backend_dev_name)(d)),
                     description: ffi::cstr((api.ggml_backend_dev_description)(d)),
+                    kind: (api.ggml_backend_dev_type)(d),
                     free_mib: free >> 20,
                 }
             })
             .collect()
     }
+}
+
+/// A CUDA device wins over Vulkan, then the discrete GPU with the most free memory. The backend
+/// registry may list Vulkan first because it is bundled with the Windows CPU libraries, while
+/// CUDA is loaded separately from the optional GPU pack. An integrated GPU of another backend
+/// (Vulkan on an Intel or AMD APU) shares system memory and is not shown to beat the CPU, so it
+/// takes an explicit `OLLAYA_DEVICE=vulkan:<n>`. CUDA's integrated devices (the GB10 of a DGX
+/// Spark, which llama.cpp reports as integrated) and Metal stay eligible.
+fn auto_gpu(found: &[Gpu]) -> Option<&Gpu> {
+    found
+        .iter()
+        .filter(|g| g.name.starts_with("CUDA") || g.kind == ffi::DEVICE_TYPE_GPU)
+        .max_by_key(|g| (g.name.starts_with("CUDA"), g.free_mib))
 }
 
 /// Why llama.cpp's CUDA backend cannot run on the device named `dev` (`CUDA0`), or `None` when it
@@ -380,10 +395,12 @@ fn cuda_unsupported(libs: &Libraries, dev: &str) -> Option<String> {
     kernels.check(info.compute_capability, info.driver).err()
 }
 
-/// Ollaya's name for a llama.cpp device: `CUDA0` → `cuda:0`, `MTL0` → `metal`.
+/// Ollaya's name for a llama.cpp device: `CUDA0` → `cuda:0`, `Vulkan0` → `vulkan:0`.
 pub fn device_name(dev: &str) -> String {
     if let Some(n) = dev.strip_prefix("CUDA") {
         format!("cuda:{n}")
+    } else if let Some(n) = dev.strip_prefix("Vulkan") {
+        format!("vulkan:{n}")
     } else if dev.starts_with("MTL") {
         "metal".into()
     } else {
@@ -639,7 +656,7 @@ impl LlamaModel {
         let found = gpus(api);
         let pick = match target {
             Target::Cpu => None,
-            Target::Auto => found.first(),
+            Target::Auto => auto_gpu(&found),
             Target::Device(name) => {
                 Some(found.iter().find(|g| &g.name == name).ok_or_else(|| {
                     let names: Vec<&str> = found.iter().map(|g| g.name.as_str()).collect();
@@ -1426,7 +1443,32 @@ mod tests {
     fn device_names() {
         assert_eq!(device_name("CUDA1"), "cuda:1");
         assert_eq!(device_name("MTL0"), "metal");
-        assert_eq!(device_name("Vulkan0"), "vulkan0");
+        assert_eq!(device_name("Vulkan0"), "vulkan:0");
+    }
+
+    #[test]
+    fn auto_prefers_cuda_then_discrete_gpus_and_leaves_integrated_vulkan_out() {
+        let gpu = |name: &str, kind, free_mib| Gpu {
+            handle: std::ptr::null_mut(),
+            name: name.into(),
+            description: name.into(),
+            kind,
+            free_mib,
+        };
+        let found = [
+            gpu("Vulkan0", ffi::DEVICE_TYPE_IGPU, 48_000),
+            gpu("Vulkan1", ffi::DEVICE_TYPE_GPU, 8_000),
+            gpu("CUDA0", ffi::DEVICE_TYPE_GPU, 6_000),
+        ];
+        assert_eq!(auto_gpu(&found).unwrap().name, "CUDA0");
+        assert_eq!(auto_gpu(&found[..2]).unwrap().name, "Vulkan1");
+        // An integrated Vulkan GPU alone: the CPU, unless OLLAYA_DEVICE names it.
+        assert!(auto_gpu(&found[..1]).is_none());
+        // A DGX Spark's GB10 is an integrated CUDA device; Apple silicon's Metal reports a GPU.
+        let spark = [gpu("CUDA0", ffi::DEVICE_TYPE_IGPU, 100_000)];
+        assert_eq!(auto_gpu(&spark).unwrap().name, "CUDA0");
+        let mac = [gpu("MTL0", ffi::DEVICE_TYPE_GPU, 20_000)];
+        assert_eq!(auto_gpu(&mac).unwrap().name, "MTL0");
     }
 
     #[test]
