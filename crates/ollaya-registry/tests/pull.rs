@@ -98,7 +98,7 @@ async fn falls_back_to_a_single_stream_when_the_server_ignores_range() {
 
     puller.pull(&name, &|_| {}).await.unwrap();
     let blob = store.blob_path(&digest).unwrap();
-    assert_eq!(std::fs::read(&blob).unwrap(), weights.as_ref());
+    assert_eq!(std::fs::read(&blob).unwrap(), &weights[..]);
 }
 
 #[tokio::test]
@@ -120,7 +120,7 @@ async fn retries_a_408_timeout_and_completes() {
                         if first.swap(false, std::sync::atomic::Ordering::SeqCst) {
                             (axum::http::StatusCode::REQUEST_TIMEOUT, "").into_response()
                         } else {
-                            weights.as_ref().clone()
+                            weights.as_ref().clone().into_response()
                         }
                     }
                 }),
@@ -140,7 +140,7 @@ async fn retries_a_408_timeout_and_completes() {
 
     puller.pull(&name, &|_| {}).await.unwrap();
     let blob = store.blob_path(&digest).unwrap();
-    assert_eq!(std::fs::read(&blob).unwrap(), weights.as_ref());
+    assert_eq!(std::fs::read(&blob).unwrap(), &weights[..]);
 }
 
 #[tokio::test]
